@@ -19,9 +19,15 @@ fetch("http://localhost:3000/api/products")
     .then(allProductsData => allProductsData.json()) // Fonction fléchée (partie gauche) : variable créée (résultat du fetch)    
     // III. Parcours de la réponse pour l'insertion de chaque produit (élément) :
     // (Affichage du contenu json dans l'élément HTML cible id (#items))
-    .then(getAllProducts => {
-        for(let getProduct of getAllProducts) { // Parcourir le tableau et créer une variable getProduct pour chaque entrée
-            let product = new Product(getProduct); // class Product créée à l'étape 0.
+    .then(getAllProductsProperties => {
+        for (getProductProperties of getAllProductsProperties) { // Parcourir le tableau et créer une variable getProductProperties pour chaque entrée
+            // Suppression du let getProductProperties of getAllProductsProperties
+            let product = new Product(getProductProperties); // class Product créée à l'étape 0.
+            // L'objet product est créé à partir de la class Product avec toutes les propriétés d'un objet
+            console.log(getAllProductsProperties); // Toutes les information de tous les produits
+            console.log(getProductProperties); // Toutes les propriétés d'un objet particulier
+            console.log(product); // Le produit comme objet
+            console.log(Product); // La class Product (constructor) qui construit l'objet product
             document.getElementById("items").innerHTML += // Template literals
                 `
                     <a href="product.html?id=${product._id}">
@@ -35,7 +41,7 @@ fetch("http://localhost:3000/api/products")
                                 </p>
                         </article>
                     </a>
-                ` // Le bactick permet le texte multiligne et la méthode d'interpolation de variable ${}.
+                ` // Le bactick permet le texte multiligne et la méthode d'interpolation de variable ${}.                
         };
     }); // Enlever ";" une fois le ".catch" défini et activé
     /* 
