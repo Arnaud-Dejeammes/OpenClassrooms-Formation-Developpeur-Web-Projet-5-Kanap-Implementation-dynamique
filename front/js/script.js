@@ -6,7 +6,7 @@ Afficher de manière dynamique sur la page index les informations relatives aux 
 class Product {
     constructor(productData) {
         productData && Object.assign(this, productData);
-        /* Object.assign : assigne les propriétés de l'objet dataProduct dans l'objet pour chaque instance (this) de la class Product
+        /* Object.assign : assigne les propriétés de l'objet productData dans l'objet pour chaque instance (this) de la class Product
         Cette syntaxte évite un constructor énumérant toutes les propriétés (colors, _id, name, price, imageUrl, description, altTxt),
         ainsi que toutes les instances qui le suivent ("this.colors = colors;", etc.). */
     }
