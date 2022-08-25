@@ -1,9 +1,9 @@
 /*
-Afficher de manière dynamique sur la page product les informations relatives au produit fournies par l'API en fonction de son id
+Affichage dynamique sur la page product les informations relatives au produit fournies par l'API en fonction de son id
 */
 
 // 0. Extraction de l'id du produit en fonction de l'URL
-var selectId = new URL(window.location.href).searchParams.get("id");
+let selectId = new URL(window.location.href).searchParams.get("id");
 
 // I. Requête de l'API pour obtenir le produit, ciblé avec son id, et l'ensemble de ses propriétés :
 fetch("http://localhost:3000/api/products/" + selectId)
@@ -13,10 +13,10 @@ fetch("http://localhost:3000/api/products/" + selectId)
     // III. Parcours de la réponse pour l'insertion de chaque élément du produit :
     // (Affichage du contenu json dans les éléments HTML cibles id (#items))
     .then(getAllProductProperties => { // Répartition de toutes les propriété du produit et de leurs valeurs
-      document.getElementById("image").innerHTML += // Eventuellement créer let id = document.createElement("id"); document.getElementsByClassName("item__img").appendChild(id); id.innerHTML = "image";
+      document.getElementById("image").innerHTML +=
           `
               <img src="${getAllProductProperties.imageUrl}" alt="${getAllProductProperties.altTxt}">
-          `              
+          `          
       document.getElementById("title").innerText +=
           `
               ${getAllProductProperties.name}
@@ -45,24 +45,30 @@ fetch("http://localhost:3000/api/products/" + selectId)
 }); */
 
 /*
-Ajouter des produits dans le panier 
+Ajout des produits dans le panier 
 */
-
 document.getElementById("addToCart").addEventListener("click", (addItem) => {  
   
   let selectColor = document.getElementById("colors").value;
   let selectQuantity = document.getElementById("quantity").value;  
+  let selectImageUrl = document.querySelector("#image img").getAttribute("src");
+  let selectAltTxt = document.querySelector("#image img").getAttribute("alt");
+  let selectName = document.getElementById("title").innerText;
+  let selectPrice = document.getElementById("price").innerText;
 
   class Item {    
-    constructor(selectId, selectColor, selectQuantity) {
+    constructor(selectId, selectColor, selectName, selectPrice, selectQuantity, selectImageUrl, selectAltTxt) {
       this.selectId = selectId;
-      this.selectColor = selectColor;
+      this.selectColor = selectColor;      
+      this.selectName = selectName;
+      this.selectPrice = selectPrice;
       this.selectQuantity = selectQuantity;
+      this.selectImageUrl = selectImageUrl;
+      this.selectAltTxt = selectAltTxt;
     }    
-  };  
+  };
   
-  let item = new Item(selectId, selectColor, selectQuantity);  
-  
+  let item = new Item(selectId, selectColor, selectName, selectPrice, selectQuantity, selectImageUrl, selectAltTxt);  
 
   if (selectColor == "" && selectQuantity < 1) {
     (alert("Merci de bien vouloir choisir une couleur et une quantité !"));
@@ -77,13 +83,13 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
   }
 
   else if (selectQuantity > 100) {
-    (alert("Merci de bien vouloir choisir une quantité inférieure à 100 articles"));
+    (alert("Merci de bien vouloir choisir une quantité inférieure à 100 articles !"));
   } 
 
   else {
     // Enregistrement des modifications du panier dans sessionStorage    
     function update() {
-      // Récupérer le panier
+      // Récupération du panier
       cart = JSON.parse(sessionStorage.getItem("cart"));
 
       // Création du panier et ajout du premier article
@@ -102,9 +108,9 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
           let match = cart.find(retrieve => retrieve.selectId == selectId && retrieve.selectColor == selectColor);
 
           // Mise à jour de sa quantité (addition)
-          if (match != null) {            
-            function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};
-            function sum() {match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity)};
+          if (match != null) {
+            function sum() {match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity)};           
+            function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};            
             
             save(sum());
           }
@@ -117,8 +123,9 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
             save(add());
           }
         }
-        modify();          
+        modify();
       }
     };
-  update();
-}});
+    update();
+  }
+});
