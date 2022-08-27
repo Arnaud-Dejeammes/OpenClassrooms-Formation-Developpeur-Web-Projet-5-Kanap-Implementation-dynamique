@@ -8,9 +8,18 @@ class Product {
         productData && Object.assign(this, productData);        
     }
 }
+/*
+class Cart {
+    constructor(cartData) {
+        cartData && Object.assign(this, cartData);        
+    }
+}
+let cart = new Cart();
+console.log(cart); */
+
+
 // Récupération du panier avec l'affichage de chaque article et ses caractéristiques
 cart = JSON.parse(sessionStorage.getItem("cart"));
-console.log(cart);
 
 if (cart == null) {
     (alert("Votre panier est vide. Merci de retourner à l'accueil pour choisir vos articles !"));
@@ -42,6 +51,21 @@ else {
                 </div>
             </div>
             </article>
-        `
+        `        
     }
 };
+
+/*
+Modification de la quantité des articles ou suppression
+*/
+// Action sur le DOM et le localStorage pour conserver les modifications, même avec une actualisation ou un changement de page
+
+Array.from(document.getElementsByClassName("itemQuantity")).forEach(node => node.addEventListener("change", changeQuantity => {
+    console.log("Tell me it's working!!!");
+    console.log(node);
+}));
+
+Array.from(document.getElementsByClassName("deleteItem")).forEach(node => node.addEventListener("click", deleteItem => {
+    console.log("Tell me it's working!!!");
+    console.log(node);
+}));

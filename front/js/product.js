@@ -47,7 +47,7 @@ fetch("http://localhost:3000/api/products/" + selectId)
 /*
 Ajout des produits dans le panier 
 */
-document.getElementById("addToCart").addEventListener("click", (addItem) => {  
+document.getElementById("addToCart").addEventListener("click", (addItem) => {
   
   let selectColor = document.getElementById("colors").value;
   let selectQuantity = document.getElementById("quantity").value;  
@@ -109,8 +109,8 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
 
           // Mise à jour de sa quantité (addition)
           if (match != null) {
-            function sum() {match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity)};           
-            function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};            
+            function sum() {match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity)};
+            function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};
             
             save(sum());
           }
