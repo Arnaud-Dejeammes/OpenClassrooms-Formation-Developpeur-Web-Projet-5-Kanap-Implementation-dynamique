@@ -18,22 +18,7 @@ if (cart == null || cart == 0) {
         `
 }
 
-else {
-
-    totalCartPrice = 0;
-
-    // Affichage de la quantité de tous les articles ajoutés au panier dès l'arrivée sur le panier :
-    let totalQuantity = 0;    
-    for (index in cart) {                                
-        let updateQuantity = parseInt(cart[index].selectQuantity);
-        totalQuantity += updateQuantity;
-
-        
-    }
-    document.getElementById("totalQuantity").innerText +=
-        `
-            ${totalQuantity}
-        ` 
+else {    
 
     for (let product of cart) {        
         // II. Répartition de chaque produit et de ses caractéristiques sur la page, avec la récupération sécurisée du prix à partir de l'API :
@@ -65,35 +50,48 @@ else {
                             </div>
                         </article>                        
                     `
-                    
+
+                // III. Calcul du coût total du panier et affichage du résultat :
+
                 // Calcul du prix de chaque article en fonction de sa quantité.
                 let totalItemPrice = product.selectQuantity * getAllProductsPrices.price;
+
+                // Calcul du prix total du panier
+                totalCartPrice += totalItemPrice;                
                 
-                // III. Calcul du coût total du panier et affichage du résultat :
-                totalCartPrice += totalItemPrice;
-                                    
+                // Affichage du prix total du panier à l'arrivée sur la page
                 document.getElementById("totalPrice").innerText = "";
-                document.getElementById("totalPrice").innerText +=
-                
+                document.getElementById("totalPrice").innerText +=                
                     `
                         ${totalCartPrice}
                     `
-
-                    
-                    document.getElementById("totalPrice").addEventListener("input", changeTotal => {
-                        
-                    });               
                 
+                // Modification du prix total du panier en fonction de la modification de la quantité des articles
+                Array.from(document.getElementsByClassName("itemQuantity")).forEach(node => node.addEventListener("input", updateTotal => {                    
+                    totalCartPrice += totalItemPrice;
+
+                    document.getElementById("totalPrice").innerText = "";                   
+                    document.getElementById("totalPrice").innerText +=                    
+                        `
+                            ${totalCartPrice}
+                        `                    
+                }));
 
                 // IV. Modification et mise à jour de la quantité pour chaque article, ainsi que de de la quantité totale des articles :
                 Array.from(document.getElementsByClassName("itemQuantity")).forEach(node => node.addEventListener("input", changeQuantity => {
-                    let itemQuantity = node.closest(".itemQuantity").value;                    
+                    let itemQuantity = node.closest(".itemQuantity").value;
 
                     // Blocage des quantités tapées au clavier inférieures à 0 et supérieures à 100
                     if (itemQuantity > 100 || itemQuantity <= -1) {
                         (alert("Merci de bien vouloir choisir une quantité comprise entre 1 et 100 articles maximum !")); // Saut de ligne \n entre les guillements : "Merci de bien vouloir choisir une quantité inférieure à 100 articles !\nRetourner au panier ?"
-                        // Remettre la quantité précédente automatiquement à jour.        
-                    }    
+                        // Essayer de remettre la quantité précédente automatiquement à jour.        
+                    }
+
+                    // Palliatif au bug du code d'origine (la lettre "e" est la seule lettre qui s'affiche quand on la tape au clavier).
+                    /* if (itemQuantity = "e") {
+                        (alert("Merci de bien vouloir utiliser les chiffres de votre clavier pour entrer une quantité."));
+                    } */ // Nombreux problèmes à l'utilisation.   
+                    // if (itemQuantity = ""), selectQuantity: "" dans le cart, avec impossibilité de rentrer un nouveau chiffre.
 
                     else {
                         // Modification de la quantité entre le DOM et le panier (cart du sessionStorage)
@@ -117,22 +115,18 @@ else {
                             
                             let updateQuantity = parseInt(cart[index].selectQuantity);            
                             totalQuantity += updateQuantity;
-                            /*
-                            if (itemQuantity == NaN) {
-                                totalQuantity = 0;
-                            } */ // Trouver la solution pour mettre totalQuantity = 0 quand totalQuantity affiche NaN.
+                            // Trouver la solution pour mettre totalQuantity = 0 quand totalQuantity affiche NaN.
 
                             document.getElementById("totalQuantity").innerText = "";
                             document.getElementById("totalQuantity").innerText +=
                                 `
                                     ${totalQuantity}
                                 `         
-                        } // Si utilisation du clavier, taper entrée.
+                        }                        
                         
-                        // Suppression d'un article avec les touches "enter", "backspace" ou "delete"
-                        // Suppression d'un article avec 0 ou supprimer + entrée au clavier
+                        // Suppression d'un article avec 0 ou les touche "delete" ou "backspace" + entrée au clavier
                         // Eviter la suppression avec "backspace" ou "delete" pour pouvoir entrer les chiffres.
-                        if (itemQuantity == 0) { // Quand itemQuantity == 0, supprime l'article. Quand itemQuantity === 0, garde l'article, mais sans la quantité (ou "0" ou "" dans la panier en fonction de la valeur entrée).
+                        /* if (itemQuantity == 0) { // Quand itemQuantity == 0, supprime l'article. Quand itemQuantity === 0, garde l'article sans le supprimer, mais sans la quantité (ou "0" ou "" dans la panier en fonction de la valeur entrée).
                             let itemId = node.closest(".cart__item").dataset.id;
                             let itemColor = node.closest(".cart__item").dataset.color;            
                             let match = cart.find(retrieve => retrieve.selectId == itemId && retrieve.selectColor == itemColor);
@@ -142,8 +136,7 @@ else {
                             function refresh() {window.location.reload()}
                                     
                             refresh((save(discard())));
-                        }
-                        // Bug d'origine en tapant "e" : supprime l'article. Seule lettre qui s'affiche quand on la tape. Prévoir un correctif.
+                        } */
                     }
                 }));
 
@@ -153,15 +146,29 @@ else {
                     let itemColor = node.closest(".cart__item").dataset.color;            
                     let match = cart.find(retrieve => retrieve.selectId == itemId && retrieve.selectColor == itemColor);
                 
-                    function discard() {cart.splice(cart.indexOf(match), 1)};    
+                    function discard() {cart.splice(cart.indexOf(match), 1)};
                     function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};
-                    function refresh() {window.location.reload()};    
+                    function refresh() {window.location.reload()};
                 
                     refresh((save(discard())));
                 }));
 
             })
             .catch((error) => console.error(error))        
+    }
+
+    totalCartPrice = 0;
+
+    // Affichage de la quantité de tous les articles ajoutés au panier dès l'arrivée sur le panier :
+    let totalQuantity = 0;   
+    for (index in cart) {                                
+        let updateQuantity = parseInt(cart[index].selectQuantity);
+        totalQuantity += updateQuantity;
+
+        document.getElementById("totalQuantity").innerText +=
+        `
+            ${totalQuantity}
+        ` 
     }    
 }
 
