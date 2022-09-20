@@ -18,9 +18,25 @@ if (cart == null || cart == 0) {
         `
 }
 
-else {    
+else {
+    
+    function displayTotalCartPrice() {
+        document.getElementById("totalPrice").innerText = "";
+        document.getElementById("totalPrice").innerText +=
+            `
+                ${totalCartPrice}
+            `
+    }
 
-    for (let product of cart) {        
+    function displayTotalQuantity() {
+        document.getElementById("totalQuantity").innerText = "";
+        document.getElementById("totalQuantity").innerText +=
+            `
+                ${totalQuantity}
+            `
+    }
+
+    for (let product of cart) {
         // II. Répartition de chaque produit et de ses caractéristiques sur la page, avec la récupération sécurisée du prix à partir de l'API :
         fetch("http://localhost:3000/api/products/" + product.selectId)
             .then(allProductsData => allProductsData.json())
@@ -57,24 +73,29 @@ else {
                 let totalItemPrice = product.selectQuantity * getAllProductsPrices.price;
 
                 // Calcul du prix total du panier
-                totalCartPrice += totalItemPrice;                
+                totalCartPrice += totalItemPrice;
                 
                 // Affichage du prix total du panier à l'arrivée sur la page
+                /*
                 document.getElementById("totalPrice").innerText = "";
                 document.getElementById("totalPrice").innerText +=                
                     `
                         ${totalCartPrice}
                     `
-                
+                */
+                displayTotalCartPrice();
+
                 // Modification du prix total du panier en fonction de la modification de la quantité des articles
                 Array.from(document.getElementsByClassName("itemQuantity")).forEach(node => node.addEventListener("input", updateTotal => {                    
                     totalCartPrice += totalItemPrice;
-
-                    document.getElementById("totalPrice").innerText = "";                   
-                    document.getElementById("totalPrice").innerText +=                    
+                    /*
+                    document.getElementById("totalPrice").innerText = "";
+                    document.getElementById("totalPrice").innerText +=
                         `
                             ${totalCartPrice}
-                        `                    
+                        `
+                    */
+                    displayTotalCartPrice();
                 }));
 
                 // IV. Modification et mise à jour de la quantité pour chaque article, ainsi que de de la quantité totale des articles :
@@ -94,17 +115,25 @@ else {
                     // if (itemQuantity = ""), selectQuantity: "" dans le cart, avec impossibilité de rentrer un nouveau chiffre.
 
                     else {
+                        function displayTotalQuantity() {
+                            document.getElementById("totalQuantity").innerText = "";
+                            document.getElementById("totalQuantity").innerText +=
+                                `
+                                    ${totalQuantity}
+                                `
+                        }
+                        
                         // Modification de la quantité entre le DOM et le panier (cart du sessionStorage)
                         function adjust() {
                             let itemId = node.closest(".cart__item").dataset.id;
-                            let itemColor = node.closest(".cart__item").dataset.color;            
+                            let itemColor = node.closest(".cart__item").dataset.color;
                             let match = cart.find(retrieve => retrieve.selectId == itemId && retrieve.selectColor == itemColor);
                             
                             function replace() {match.selectQuantity = itemQuantity};
                             
                             replace();
                         };
-                        function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};    
+                        function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};
                         
                         save(adjust());
                         
@@ -117,26 +146,58 @@ else {
                             totalQuantity += updateQuantity;
                             // Trouver la solution pour mettre totalQuantity = 0 quand totalQuantity affiche NaN.
 
+                            /*
                             document.getElementById("totalQuantity").innerText = "";
                             document.getElementById("totalQuantity").innerText +=
                                 `
                                     ${totalQuantity}
-                                `         
+                                `
+                            */
+                           displayTotalQuantity();
                         }                        
                         
                         // Suppression d'un article avec 0 ou les touche "delete" ou "backspace" + entrée au clavier
                         // Eviter la suppression avec "backspace" ou "delete" pour pouvoir entrer les chiffres.
-                        /* if (itemQuantity == 0) { // Quand itemQuantity == 0, supprime l'article. Quand itemQuantity === 0, garde l'article sans le supprimer, mais sans la quantité (ou "0" ou "" dans la panier en fonction de la valeur entrée).
+                        if (itemQuantity == 0) { // Quand itemQuantity == 0, supprime l'article. Quand itemQuantity === 0, garde l'article sans le supprimer, mais sans la quantité (ou "0" ou "" dans la panier en fonction de la valeur entrée).
                             let itemId = node.closest(".cart__item").dataset.id;
                             let itemColor = node.closest(".cart__item").dataset.color;            
                             let match = cart.find(retrieve => retrieve.selectId == itemId && retrieve.selectColor == itemColor);
 
                             function discard() {cart.splice(cart.indexOf(match), 1)};    
                             function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};
-                            function refresh() {window.location.reload()}
+                            
+                            node.closest(".cart__item").remove();
                                     
-                            refresh((save(discard())));
-                        } */
+                            (save(discard()));                            
+                            
+                            // if (cart === null || cart === 0) {
+                            //    sessionStorage.removeItem("cart");
+                            //}
+
+                            let totalQuantity = 0;
+
+                            for (index in cart) {
+                                    
+                                let updateQuantity = parseInt(cart[index].selectQuantity); 
+                                        
+                                totalQuantity += updateQuantity;
+                                // Trouver la solution pour mettre totalQuantity = 0 quand totalQuantity affiche NaN.
+
+                                document.getElementById("totalQuantity").innerText = "";
+                                document.getElementById("totalQuantity").innerText +=
+                                    `
+                                        ${totalQuantity}
+                                    `
+                            }
+                    
+                            totalCartPrice += totalItemPrice;
+
+                            document.getElementById("totalPrice").innerText = "";
+                            document.getElementById("totalPrice").innerText +=
+                                `
+                                    ${totalCartPrice}
+                                `                 
+                        }
                     }
                 }));
 
@@ -147,10 +208,37 @@ else {
                     let match = cart.find(retrieve => retrieve.selectId == itemId && retrieve.selectColor == itemColor);
                 
                     function discard() {cart.splice(cart.indexOf(match), 1)};
-                    function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};
-                    function refresh() {window.location.reload()};
-                
-                    refresh((save(discard())));
+                    function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};                    
+                    
+                    node.closest(".cart__item").remove(); // La méthode remove() est plus moderne que removeChild().                    
+
+                    (save(discard()));
+
+                    // totalCartPrice = 0;
+                    
+                    let totalQuantity = 0;
+
+                    for (index in cart) {
+                            
+                        let updateQuantity = parseInt(cart[index].selectQuantity); 
+                                   
+                        totalQuantity += updateQuantity;
+                        // Trouver la solution pour mettre totalQuantity = 0 quand totalQuantity affiche NaN.
+
+                        document.getElementById("totalQuantity").innerText = "";
+                        document.getElementById("totalQuantity").innerText +=
+                            `
+                                ${totalQuantity}
+                            `
+                    }
+                    
+                    totalCartPrice += totalItemPrice;
+
+                    document.getElementById("totalPrice").innerText = "";
+                    document.getElementById("totalPrice").innerText +=
+                        `
+                            ${totalCartPrice}
+                        `
                 }));
 
             })
@@ -164,12 +252,11 @@ else {
     for (index in cart) {                                
         let updateQuantity = parseInt(cart[index].selectQuantity);
         totalQuantity += updateQuantity;
-
-        document.getElementById("totalQuantity").innerText +=
+    }
+    document.getElementById("totalQuantity").innerText +=
         `
             ${totalQuantity}
         ` 
-    }    
 }
 
  /*
