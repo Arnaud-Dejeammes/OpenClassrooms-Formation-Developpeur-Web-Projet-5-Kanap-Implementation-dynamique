@@ -19,23 +19,6 @@ if (cart == null || cart == 0) {
 }
 
 else {
-    
-    function displayTotalCartPrice() {
-        document.getElementById("totalPrice").innerText = "";
-        document.getElementById("totalPrice").innerText +=
-            `
-                ${totalCartPrice}
-            `
-    }
-
-    function displayTotalQuantity() {
-        document.getElementById("totalQuantity").innerText = "";
-        document.getElementById("totalQuantity").innerText +=
-            `
-                ${totalQuantity}
-            `
-    }
-
     for (let product of cart) {
         // II. Répartition de chaque produit et de ses caractéristiques sur la page, avec la récupération sécurisée du prix à partir de l'API :
         fetch("http://localhost:3000/api/products/" + product.selectId)
@@ -68,34 +51,28 @@ else {
                     `
 
                 // III. Calcul du coût total du panier et affichage du résultat :
-
                 // Calcul du prix de chaque article en fonction de sa quantité.
                 let totalItemPrice = product.selectQuantity * getAllProductsPrices.price;
 
-                // Calcul du prix total du panier
-                totalCartPrice += totalItemPrice;
-                
-                // Affichage du prix total du panier à l'arrivée sur la page
-                /*
-                document.getElementById("totalPrice").innerText = "";
-                document.getElementById("totalPrice").innerText +=                
-                    `
-                        ${totalCartPrice}
-                    `
-                */
-                displayTotalCartPrice();
-
-                // Modification du prix total du panier en fonction de la modification de la quantité des articles
-                Array.from(document.getElementsByClassName("itemQuantity")).forEach(node => node.addEventListener("input", updateTotal => {                    
+                // Calcul du prix total
+                function computeTotalCartPrice () {
                     totalCartPrice += totalItemPrice;
-                    /*
+                }
+                // Affichage du prix total du panier
+                function displayTotalCartPrice() {
                     document.getElementById("totalPrice").innerText = "";
                     document.getElementById("totalPrice").innerText +=
                         `
                             ${totalCartPrice}
                         `
-                    */
-                    displayTotalCartPrice();
+                }
+                
+                // Calcul et affichage du prix total du panier à l'arrivée sur la page
+                displayTotalCartPrice(computeTotalCartPrice());
+
+                // Modification du prix total du panier en fonction de la modification de la quantité des articles
+                Array.from(document.getElementsByClassName("itemQuantity")).forEach(node => node.addEventListener("input", updateTotal => {
+                        displayTotalCartPrice(computeTotalCartPrice());
                 }));
 
                 // IV. Modification et mise à jour de la quantité pour chaque article, ainsi que de de la quantité totale des articles :
@@ -115,6 +92,7 @@ else {
                     // if (itemQuantity = ""), selectQuantity: "" dans le cart, avec impossibilité de rentrer un nouveau chiffre.
 
                     else {
+                        // Affichage de la quantité totale des articles dans le panier
                         function displayTotalQuantity() {
                             document.getElementById("totalQuantity").innerText = "";
                             document.getElementById("totalQuantity").innerText +=
@@ -122,7 +100,7 @@ else {
                                     ${totalQuantity}
                                 `
                         }
-                        
+
                         // Modification de la quantité entre le DOM et le panier (cart du sessionStorage)
                         function adjust() {
                             let itemId = node.closest(".cart__item").dataset.id;
@@ -145,14 +123,7 @@ else {
                             let updateQuantity = parseInt(cart[index].selectQuantity);            
                             totalQuantity += updateQuantity;
                             // Trouver la solution pour mettre totalQuantity = 0 quand totalQuantity affiche NaN.
-
-                            /*
-                            document.getElementById("totalQuantity").innerText = "";
-                            document.getElementById("totalQuantity").innerText +=
-                                `
-                                    ${totalQuantity}
-                                `
-                            */
+                            
                            displayTotalQuantity();
                         }                        
                         
@@ -183,20 +154,10 @@ else {
                                 totalQuantity += updateQuantity;
                                 // Trouver la solution pour mettre totalQuantity = 0 quand totalQuantity affiche NaN.
 
-                                document.getElementById("totalQuantity").innerText = "";
-                                document.getElementById("totalQuantity").innerText +=
-                                    `
-                                        ${totalQuantity}
-                                    `
+                                displayTotalQuantity();                                
                             }
-                    
-                            totalCartPrice += totalItemPrice;
-
-                            document.getElementById("totalPrice").innerText = "";
-                            document.getElementById("totalPrice").innerText +=
-                                `
-                                    ${totalCartPrice}
-                                `                 
+                            
+                            displayTotalCartPrice(computeTotalCartPrice());                                          
                         }
                     }
                 }));
@@ -225,20 +186,17 @@ else {
                         totalQuantity += updateQuantity;
                         // Trouver la solution pour mettre totalQuantity = 0 quand totalQuantity affiche NaN.
 
-                        document.getElementById("totalQuantity").innerText = "";
-                        document.getElementById("totalQuantity").innerText +=
-                            `
-                                ${totalQuantity}
-                            `
-                    }
-                    
-                    totalCartPrice += totalItemPrice;
+                        function displayTotalQuantity() {
+                            document.getElementById("totalQuantity").innerText = "";
+                            document.getElementById("totalQuantity").innerText +=
+                                `
+                                    ${totalQuantity}
+                                `
+                        }
 
-                    document.getElementById("totalPrice").innerText = "";
-                    document.getElementById("totalPrice").innerText +=
-                        `
-                            ${totalCartPrice}
-                        `
+                        displayTotalQuantity();
+                    }
+                    displayTotalCartPrice(computeTotalCartPrice());                    
                 }));
 
             })
