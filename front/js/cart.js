@@ -1,6 +1,4 @@
-/*
-Récupération des articles ajoutés au panier
-*/
+// Récupération des articles ajoutés au panier
 
 // I. Récupération du panier (sessionStorage) avec l'affichage de chaque article et ses caractéristiques :
 cart = JSON.parse(sessionStorage.getItem("cart"));
@@ -134,7 +132,7 @@ else {
                             let itemColor = node.closest(".cart__item").dataset.color;            
                             let match = cart.find(retrieve => retrieve.selectId == itemId && retrieve.selectColor == itemColor);
 
-                            function discard() {cart.splice(cart.indexOf(match), 1)};    
+                            function discard() {cart.splice(cart.indexOf(match), 1)};
                             function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};
                             
                             node.closest(".cart__item").remove();
