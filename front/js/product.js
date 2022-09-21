@@ -1,6 +1,4 @@
-/*
-Affichage dynamique sur la page product les informations relatives au produit fournies par l'API en fonction de son id
-*/
+// Affichage dynamique sur la page product les informations relatives au produit fournies par l'API en fonction de son id
 
 // 0. Extraction de l'id du produit en fonction de l'URL
 let selectId = new URL(window.location.href).searchParams.get("id");
@@ -8,60 +6,52 @@ let selectId = new URL(window.location.href).searchParams.get("id");
 // I. Requête de l'API pour obtenir le produit, ciblé avec son id, et l'ensemble de ses propriétés :
 fetch("http://localhost:3000/api/products/" + selectId)
 // II. Récupération de la réponse du service web :
-// (Création promise)
-    .then(allProductData => allProductData.json())
-    // III. Parcours de la réponse pour l'insertion de chaque élément du produit :
-    // (Affichage du contenu json dans les éléments HTML cibles id (#items))
-    .then(getAllProductProperties => { // Répartition de toutes les propriété du produit et de leurs valeurs
-      document.getElementById("image").innerHTML +=
+  .then(allProductData => allProductData.json())
+  // III. Parcours de la réponse pour l'insertion de chaque élément du produit :  
+  .then(getAllProductProperties => {
+    document.getElementById("image").innerHTML +=
+        `
+            <img src="${getAllProductProperties.imageUrl}" alt="${getAllProductProperties.altTxt}">
+        `          
+    document.getElementById("title").innerText +=
+        `
+            ${getAllProductProperties.name}
+        `
+    document.getElementById("price").innerText +=
+        `
+            ${getAllProductProperties.price}
+        `
+    document.getElementById("description").innerText +=
+        `
+            ${getAllProductProperties.description}
+        `
+    let display = "";
+    for (color of getAllProductProperties.colors) {
+      display +=
           `
-              <img src="${getAllProductProperties.imageUrl}" alt="${getAllProductProperties.altTxt}">
-          `          
-      document.getElementById("title").innerText +=
-          `
-              ${getAllProductProperties.name}
-          `
-      document.getElementById("price").innerText +=
-          `
-              ${getAllProductProperties.price}
-          `
-      document.getElementById("description").innerText +=
-          `
-              ${getAllProductProperties.description}
+              <option value="${color}">
+                  ${color}
+              </option>
           `        
-      for (color of getAllProductProperties.colors) { // Couleur visée (color) dans son array (getAllProductProperties) inclus dans la propriété (colors) du fichier json
-        document.getElementById("colors").innerHTML +=
-            `
-                <option value="${color}">
-                    ${color}
-                </option>
-            `        
-      };
-    });
-    
-/* 
-.catch(function(err) {
-    // Survenue d'une erreur
-}); */
+    };
+    document.getElementById("colors").innerHTML += display;
+  })
+  .catch((error) => console.error(error));
 
-/*
-Ajout des produits dans le panier 
-*/
+// Ajout des produits dans le panier
 document.getElementById("addToCart").addEventListener("click", (addItem) => {
   
   let selectColor = document.getElementById("colors").value;
   let selectQuantity = document.getElementById("quantity").value;  
   let selectImageUrl = document.querySelector("#image img").getAttribute("src");
   let selectAltTxt = document.querySelector("#image img").getAttribute("alt");
-  let selectName = document.getElementById("title").innerText;
-  // let selectPrice = document.getElementById("price").innerText;
+  let selectName = document.getElementById("title").innerText;  
 
   class Item {    
     constructor(selectId, selectColor, selectName, selectQuantity, selectImageUrl, selectAltTxt) { // constructor(selectId, selectColor, selectName, selectPrice, selectQuantity, selectImageUrl, selectAltTxt)
       this.selectId = selectId;
       this.selectColor = selectColor;      
-      this.selectName = selectName;
-      // this.selectPrice = selectPrice;
+      this.selectName = selectName;      
       this.selectQuantity = selectQuantity;
       this.selectImageUrl = selectImageUrl;
       this.selectAltTxt = selectAltTxt;
@@ -87,7 +77,7 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
   } 
 
   else {
-    // Enregistrement des modifications du panier dans sessionStorage    
+    // Enregistrement des modifications du panier dans sessionStorage
     function update() {
       // Récupération du panier
       cart = JSON.parse(sessionStorage.getItem("cart"));

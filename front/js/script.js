@@ -25,4 +25,4 @@ fetch("http://localhost:3000/api/products")
         };
         document.getElementById("items").innerHTML = display;
     })    
-    .catch((error) => console.error(error));   
+    .catch((error) => console.error(error));
