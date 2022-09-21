@@ -23,7 +23,7 @@ else {
         // II. Répartition de chaque produit et de ses caractéristiques sur la page, avec la récupération sécurisée du prix à partir de l'API :
         fetch("http://localhost:3000/api/products/" + product.selectId)
             .then(allProductsData => allProductsData.json())
-            .then(getAllProductsPrices => {                
+            .then(getAllProductsPrices => {
                 document.getElementById("cart__items").innerHTML +=
                     `
                         <article class="cart__item" data-id="${product.selectId}" data-color="${product.selectColor}">
@@ -140,12 +140,13 @@ else {
                             node.closest(".cart__item").remove();
                                     
                             (save(discard()));                            
-                            
-                            // if (cart === null || cart === 0) {
-                            //    sessionStorage.removeItem("cart");
-                            //}
+                            /*
+                            if (cart === null || cart === 0) {
+                                // sessionStorage.removeItem("cart");
+                                sessionStorage.clear();
+                            } */
 
-                            let totalQuantity = 0;
+                            // let totalQuantity = 0;
 
                             for (index in cart) {
                                     
@@ -153,11 +154,12 @@ else {
                                         
                                 totalQuantity += updateQuantity;
                                 // Trouver la solution pour mettre totalQuantity = 0 quand totalQuantity affiche NaN.
-
-                                displayTotalQuantity();                                
+                                
+                                displayTotalQuantity();
+                                
                             }
                             
-                            displayTotalCartPrice(computeTotalCartPrice());                                          
+                            displayTotalCartPrice(computeTotalCartPrice());
                         }
                     }
                 }));
@@ -200,7 +202,7 @@ else {
                 }));
 
             })
-            .catch((error) => console.error(error))        
+            .catch((error) => console.error(error))
     }
 
     totalCartPrice = 0;
@@ -216,6 +218,187 @@ else {
             ${totalQuantity}
         ` 
 }
+
+/*
+Validation du formulaire
+*/
+
+/* document.querySelector(".cart__order__form").addEventListener("input", scanActivity => {
+    console.log(document.querySelector(".cart__order__form").value);
+}) */
+
+/*
+document.getElementsByClassName("cart__order__form__submit").addEventListener("click", order => {
+    
+    function switchSubmit(disabled) {
+        if (disabled) {
+            document.getElementsByClassName("cart__order__form__submit").setAttribute("disabled", true);
+        }
+        else {
+        document.getElementsByClassName("cart__order__form__submit").removeAttribute("disabled");
+        }
+    }
+});
+*/
+
+document.getElementById("firstName").addEventListener("input", validateFirstName => {
+    /* Regex pour firstName et lastName (clients avec des prénoms écrits avec les différents alphabets
+    européens et leurs caractères spéciaux, ainsi que les translitérations en alphabet latin) */
+    
+    let namePattern = new RegExp("^[A-Za-zÀ-žĄ-ę’'ʼ-]+$"); // "^[^ ][A-Za-zÀ-žĄ-ę ’'ʼ-]+$"
+    
+        if (namePattern.test(document.getElementById("firstName").value)) {
+            document.getElementById("firstName").style.backgroundColor = "#B6D7A8";
+            document.getElementById("firstNameErrorMsg").innerText = "";
+            return true;
+        }       
+
+        else {
+            document.getElementById("firstName").style.backgroundColor = "#FBBCBC";
+            document.getElementById("firstNameErrorMsg").innerText =
+            "Seuls les lettres de l’alphabet, le tiret et l’apostrophe peuvent être utilisés.";
+            // alert("Il y a un petit souci avec le format du prénom !");            
+            return false;
+        }
+      
+})
+
+document.getElementById("lastName").addEventListener("input", validateLastName => {
+    /* Regex pour firstName et lastName (clients avec des noms écrits avec les différents alphabets
+    européens et leurs caractères spéciaux, ainsi que les translitérations en alphabet latin) */
+    let namePattern = new RegExp("^[A-Za-zÀ-žĄ-ę’'ʼ-]+$"); // "^[^ ][A-Za-zÀ-žĄ-ę ’'ʼ-]+$"
+    
+    if (namePattern.test(document.getElementById("lastName").value)) {
+        document.getElementById("lastName").style.backgroundColor = "#B6D7A8";
+        document.getElementById("lastNameErrorMsg").innerText = "";
+        return true;
+    }
+    else {
+        document.getElementById("lastName").style.backgroundColor = "#FBBCBC";
+        document.getElementById("lastNameErrorMsg").innerText =
+        "Seuls les lettres de l’alphabet, le tiret et l’apostrophe peuvent être utilisés.";
+        // alert("Il y a un petit souci avec le format de votre nom n'est pas valide.\nMerci de n'utilser que des lettres.");
+        return false;
+    }
+})
+
+document.getElementById("address").addEventListener("input", validateAddress => {
+    /* Regex pour address (livraison en France uniquement; virgule non
+    prise en compte afin de se conformer aux nouvelles normes postales) */ 
+    let addressPattern = new RegExp("^[0-9A-Za-zÀàÂâÄäÆæÇçÈèÉéÊêËëÎîÏïÔôŒœÙùÛûÜüŸÿ ’'ʼ-]+$"); // "^[^ ][A-Za-zÀ-žĄ-ę ’'ʼ-]+$"
+    
+    if (addressPattern.test(document.getElementById("address").value)) {
+        document.getElementById("address").style.backgroundColor = "#B6D7A8";
+        document.getElementById("addressErrorMsg").innerText = "";
+        return true;
+    }
+    else {
+        document.getElementById("address").style.backgroundColor = "#FBBCBC";
+        document.getElementById("addressErrorMsg").innerText =
+        "Seuls les chiffres, les lettres de l’alphabet, le tiret et l’apostrophe peuvent être utilisés.\nLivraison en France uniquement.";
+        // alert("Il y a un petit souci avec votre adresse !\nMerci de n'utilser que des chiffres et des lettres.");
+        return false;
+    }
+})
+
+document.getElementById("city").addEventListener("input", validateCity => {
+    /* Regex pour city (localité; livraison en France uniquement; virgule non
+    prise en compte afin de se conformer aux nouvelles normes postales) */
+    let cityPattern = new RegExp("^[A-Za-zÀàÂâÄäÆæÇçÈèÉéÊêËëÎîÏïÔôŒœÙùÛûÜüŸÿ’'ʼ-]+$"); // "^[^ ][A-Za-zÀ-žĄ-ę ’'ʼ-]+$"
+    
+    if (cityPattern.test(document.getElementById("city").value)) {
+        document.getElementById("city").style.backgroundColor = "#B6D7A8";
+        document.getElementById("cityErrorMsg").innerText = "";
+        return true;
+    }
+    else {
+        document.getElementById("city").style.backgroundColor = "#FBBCBC";
+        document.getElementById("cityErrorMsg").innerText =
+        "Seuls les lettres de l’alphabet, le tiret et l’apostrophe peuvent être utilisés.\nLivraison en France uniquement.";
+        // alert("Il y a un petit souci avec votre adresse !\nMerci de n'utilser que des chiffres et des lettres.");
+        return false;
+    }
+})
+
+document.getElementById("email").addEventListener("input", validateEmail => {
+    /* Regex pour email */
+    // let emailPattern = new RegExp("[a-z09]+[@]{1}+[.]{1}[a-z]{2,}+$")
+
+    let emailPattern = new RegExp("^[a-zA-Z0-9-_.]+@[a-zA-Z0-9-_]+.[a-z]{0,63}$"); // Devient vert dès la première partie du nom de domaine, avant le point. // {2,4}
+    // new RegExp(/^([w-_.]+)@((?:[w]+.)+)([a-zA-Z]{2,4})/i)
+
+    if (emailPattern.test(document.getElementById("email").value)) {
+        document.getElementById("email").style.backgroundColor = "#B6D7A8";
+        document.getElementById("emailErrorMsg").innerText = "";
+        return true;
+    }
+    else {
+        document.getElementById("email").style.backgroundColor = "#FBBCBC";
+        document.getElementById("emailErrorMsg").innerText =
+        "identifiant@nomde.domaine";
+        // alert("Il y a un petit souci avec votre email !\nMerci de pas utilser de caractères spéciaux à part @.");
+        return false;
+    }
+})
+
+    /*
+    {
+        firstName: firstName.value,
+        lastName: lastName.value,
+        address: address.value,
+        city: city.value,
+        email.email.value
+    }
+    */
+    /*
+    class customerInformation {    
+        constructor(firstName, lastName, address, city, email) { // constructor(selectId, selectColor, selectName, selectPrice, selectQuantity, selectImageUrl, selectAltTxt)
+          this.firstName = firstName.value;
+          this.lastName = lastName.value;      
+          this.address = address.value;
+          // this.selectPrice = selectPrice;
+          this.city = city.value;
+          this.email = email.value;          
+        }    
+      }
+})  */
+
+/*
+fetch("http://localhost:3000/api/products/order/", { // "http://localhost:3000/api/order/"
+    method: "POST",
+    headers: {"Content-Type": "application/json",
+              "Accept": "application/json"}
+    body: JSON.stringify({
+        firstName: document.getElementById("firstName").value,
+        lastName: document.getElementById("lastName").value,
+        address: document.getElementById("address").value,
+        city: document.getElementById("city").value,
+        email: document.getElementById("email").value
+    })
+})
+.then(allProductsData => allProductsData.json())
+.then(getAllProductsData => {})
+.catch((error) => console.error(error)) */
+
+document.getElementById("firstName").addEventListener("input", scanActivity => {
+    console.log(document.getElementById("firstName").value);
+})
+
+document.getElementById("lastName").addEventListener("input", scanActivity => {
+    console.log(document.getElementById("lastName").value);
+})
+
+document.getElementById("address").addEventListener("input", scanActivity => {
+    console.log(document.getElementById("address").value);
+})
+
+document.getElementById("city").addEventListener("input", scanActivity => {
+    console.log(document.getElementById("city").value);
+})
+
+document.getElementById("email").addEventListener("input", scanActivity => {
+console.log(document.getElementById("email").value);
+})
 
  /*
     addEventListener :
