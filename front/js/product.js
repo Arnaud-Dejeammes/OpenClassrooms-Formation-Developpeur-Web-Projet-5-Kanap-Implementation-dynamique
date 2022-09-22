@@ -48,7 +48,7 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
   let selectName = document.getElementById("title").innerText;  
 
   class Item {    
-    constructor(selectId, selectColor, selectName, selectQuantity, selectImageUrl, selectAltTxt) { // constructor(selectId, selectColor, selectName, selectPrice, selectQuantity, selectImageUrl, selectAltTxt)
+    constructor(selectId, selectColor, selectName, selectQuantity, selectImageUrl, selectAltTxt) {
       this.selectId = selectId;
       this.selectColor = selectColor;      
       this.selectName = selectName;      
@@ -58,7 +58,7 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
     }    
   }
   
-  let item = new Item(selectId, selectColor, selectName, selectQuantity, selectImageUrl, selectAltTxt); // Item(selectId, selectColor, selectName, selectPrice, selectQuantity, selectImageUrl, selectAltTxt);
+  let item = new Item(selectId, selectColor, selectName, selectQuantity, selectImageUrl, selectAltTxt);
 
   if (selectColor == "" && selectQuantity < 1) {
     (alert("Merci de bien vouloir choisir une couleur et une quantité !"));
