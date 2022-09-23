@@ -9,32 +9,24 @@ fetch("http://localhost:3000/api/products/" + selectId)
   .then(allProductData => allProductData.json())
   // III. Parcours de la réponse pour l'insertion de chaque élément du produit :  
   .then(getAllProductProperties => {
-    document.getElementById("image").innerHTML +=
+    document.getElementById("image").innerHTML =
         `
             <img src="${getAllProductProperties.imageUrl}" alt="${getAllProductProperties.altTxt}">
         `          
-    document.getElementById("title").innerText +=
-        `
-            ${getAllProductProperties.name}
-        `
-    document.getElementById("price").innerText +=
-        `
-            ${getAllProductProperties.price}
-        `
-    document.getElementById("description").innerText +=
-        `
-            ${getAllProductProperties.description}
-        `
-    let display = "";
+    document.getElementById("title").innerText = getAllProductProperties.name;        
+    document.getElementById("price").innerText = getAllProductProperties.price;
+    document.getElementById("description").innerText = getAllProductProperties.description;
+    let displayColorsChoice = "";
     for (color of getAllProductProperties.colors) {
-      display +=
+      displayColorsChoice +=
           `
               <option value="${color}">
                   ${color}
               </option>
           `        
     };
-    document.getElementById("colors").innerHTML += display;
+    document.getElementById("colors").innerHTML += displayColorsChoice;
+    
   })
   .catch((error) => console.error(error));
 
@@ -78,44 +70,35 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
 
   else {
     // Enregistrement des modifications du panier dans sessionStorage
-    function update() {
-      // Récupération du panier
-      cart = JSON.parse(sessionStorage.getItem("cart"));
+    // update
+    // Récupération du panier
+    cart = JSON.parse(sessionStorage.getItem("cart"));
 
-      // Création du panier et ajout du premier article
-      if (cart === null) {        
-        function add() {cart.push(item)};
-        function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};
+    // Création du panier et ajout du premier article
+    if (cart === null) {        
+      cart.push(item); // add
+      sessionStorage.setItem("cart", JSON.stringify(cart)); // save
+      let cart = [];
+      
+    }
 
-        let cart = [];
-        save(add());
-      }
+    // Vérification de l'existence éventuelle d'un même article (selectId et selectColor identiques), modification de sa quantité ou ajout d'un article différent
+    if (cart) {        
+      // modify
+        // Recherche d'un article similaire
+        let match = cart.find(retrieve => retrieve.selectId == selectId && retrieve.selectColor == selectColor);
 
-      // Vérification de l'existence éventuelle d'un même article (selectId et selectColor identiques), modification de sa quantité ou ajout d'un article différent
-      if (cart) {        
-        function modify() {
-          // Recherche d'un article similaire
-          let match = cart.find(retrieve => retrieve.selectId == selectId && retrieve.selectColor == selectColor);
-
-          // Mise à jour de sa quantité (addition)
-          if (match != null) {
-            function sum() {match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity)};
-            function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};
-            
-            save(sum());
-          }
-
-          // Ajout d'un nouvel article
-          else {
-            function add() {cart.push(item)};
-            function save() {sessionStorage.setItem("cart", JSON.stringify(cart))};
-
-            save(add());
-          }
+        // Mise à jour de sa quantité (addition)
+        if (match != null) {
+          match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity); // sum
+          sessionStorage.setItem("cart", JSON.stringify(cart)); // save            
         }
-        modify();
-      }
-    };
-    update();
+
+        // Ajout d'un nouvel article
+        else {
+          cart.push(item); // add
+          sessionStorage.setItem("cart", JSON.stringify(cart)); // save            
+        }        
+    }    
   }
 });
