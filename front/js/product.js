@@ -75,11 +75,10 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
     cart = JSON.parse(sessionStorage.getItem("cart"));
 
     // Création du panier et ajout du premier article
-    if (cart === null) {        
+    if (cart === null) {
+      let cart = [];
       cart.push(item); // add
       sessionStorage.setItem("cart", JSON.stringify(cart)); // save
-      let cart = [];
-      
     }
 
     // Vérification de l'existence éventuelle d'un même article (selectId et selectColor identiques), modification de sa quantité ou ajout d'un article différent
