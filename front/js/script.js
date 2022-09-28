@@ -1,4 +1,4 @@
-// )Affichage dynamique sur la page index des informations relatives aux produits fournies par l'API
+// Affichage dynamique sur la page index des informations relatives aux produits fournies par l'API
 
 // I. Requête de l'API pour obtenir l'ensemble des produits :
 fetch("http://localhost:3000/api/products")
@@ -24,5 +24,10 @@ fetch("http://localhost:3000/api/products")
                 `
         };
         document.getElementById("items").innerHTML = display;
+        /* document.getElementById("cart__items").insertAdjacentHTML("beforeend",
+            `
+                ${display}
+            `
+        ) */
     })    
     .catch((error) => console.error(error));

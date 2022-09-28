@@ -8,14 +8,16 @@ fetch("http://localhost:3000/api/products/" + selectId)
 // II. Récupération de la réponse du service web :
   .then(allProductData => allProductData.json())
   // III. Parcours de la réponse pour l'insertion de chaque élément du produit :  
-  .then(getAllProductProperties => {
-    document.getElementById("image").innerHTML =
-        `
-            <img src="${getAllProductProperties.imageUrl}" alt="${getAllProductProperties.altTxt}">
-        `          
+  .then(getAllProductProperties => {    
+    document.getElementById("image").insertAdjacentHTML("beforeend",    
+      `
+          <img src="${getAllProductProperties.imageUrl}" alt="${getAllProductProperties.altTxt}">
+      `
+    )     
     document.getElementById("title").innerText = getAllProductProperties.name;        
     document.getElementById("price").innerText = getAllProductProperties.price;
     document.getElementById("description").innerText = getAllProductProperties.description;
+    
     let displayColorsChoice = "";
     for (color of getAllProductProperties.colors) {
       displayColorsChoice +=
@@ -25,8 +27,7 @@ fetch("http://localhost:3000/api/products/" + selectId)
               </option>
           `        
     };
-    document.getElementById("colors").innerHTML += displayColorsChoice;
-    
+    document.getElementById("colors").innerHTML += displayColorsChoice;    
   })
   .catch((error) => console.error(error));
 
