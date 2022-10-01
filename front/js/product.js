@@ -70,16 +70,16 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
   } 
 
   else {
-    // Enregistrement des modifications du panier dans sessionStorage
+    // Enregistrement des modifications du panier dans localStorage
     // Mise à jour
     // Récupération du panier
-    cart = JSON.parse(sessionStorage.getItem("cart"));
+    cart = JSON.parse(localStorage.getItem("cart"));
     
     // Création du panier et ajout du premier article
     if (cart === null) {
       let cart = [];
       cart.push(item); // Ajout
-      sessionStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde      
+      localStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde      
     }
 
     // Vérification de l'existence éventuelle d'un même article (selectId et selectColor identiques), modification de sa quantité ou ajout d'un article différent
@@ -91,13 +91,13 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
         // Mise à jour de sa quantité (addition)
         if (match != null) {
           match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity); // Calcul de la somme
-          sessionStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
+          localStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
         }
 
         // Ajout d'un nouvel article
         else {
           cart.push(item); // Ajout
-          sessionStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
+          localStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
         }        
     }
     /*
