@@ -23,11 +23,6 @@ fetch("http://localhost:3000/api/products")
                     </a>
                 `
         };
-        document.getElementById("items").innerHTML = display;
-        /* document.getElementById("cart__items").insertAdjacentHTML("beforeend",
-            `
-                ${display}
-            `
-        ) */
+        document.getElementById("items").insertAdjacentHTML("beforeend", display);        
     })    
     .catch((error) => console.error(error));
