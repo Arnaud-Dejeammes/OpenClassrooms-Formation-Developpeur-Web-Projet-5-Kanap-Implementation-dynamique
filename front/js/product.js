@@ -71,34 +71,39 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
 
   else {
     // Enregistrement des modifications du panier dans sessionStorage
-    // update
+    // Mise à jour
     // Récupération du panier
     cart = JSON.parse(sessionStorage.getItem("cart"));
-
+    
     // Création du panier et ajout du premier article
     if (cart === null) {
       let cart = [];
-      cart.push(item); // add
-      sessionStorage.setItem("cart", JSON.stringify(cart)); // save
+      cart.push(item); // Ajout
+      sessionStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde      
     }
 
     // Vérification de l'existence éventuelle d'un même article (selectId et selectColor identiques), modification de sa quantité ou ajout d'un article différent
     if (cart) {        
-      // modify
-        // Recherche d'un article similaire
-        let match = cart.find(retrieve => retrieve.selectId == selectId && retrieve.selectColor == selectColor);
+      // Modification
+      // Recherche d'un article similaire
+      let match = cart.find(retrieve => retrieve.selectId == selectId && retrieve.selectColor == selectColor);
 
         // Mise à jour de sa quantité (addition)
         if (match != null) {
-          match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity); // sum
-          sessionStorage.setItem("cart", JSON.stringify(cart)); // save            
+          match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity); // Calcul de la somme
+          sessionStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
         }
 
         // Ajout d'un nouvel article
         else {
-          cart.push(item); // add
-          sessionStorage.setItem("cart", JSON.stringify(cart)); // save            
+          cart.push(item); // Ajout
+          sessionStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
         }        
-    }    
+    }
+    /*
+    document.querySelector(".cart__order__form__submit").addEventListener("submit", function (event) {
+      alert("Article(s) ajouté(s) au panier !");
+    });
+    */
   }
 });
