@@ -6,9 +6,9 @@ fetch("http://localhost:3000/api/products")
     .then(allProductsData => allProductsData.json())
     // III. Parcours de la réponse pour l'insertion de chaque produit (élément) :
     .then(getAllProductsProperties => {
-        let display = "";
+        let displayProducts = "";
         for (getProductProperties of getAllProductsProperties) {
-            display +=
+            displayProducts +=
                 `
                     <a href="product.html?id=${getProductProperties._id}">
                         <article>
@@ -23,6 +23,6 @@ fetch("http://localhost:3000/api/products")
                     </a>
                 `
         };
-        document.getElementById("items").insertAdjacentHTML("beforeend", display);        
+        document.getElementById("items").insertAdjacentHTML("beforeend", displayProducts);        
     })    
     .catch((error) => console.error(error));
