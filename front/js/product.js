@@ -35,11 +35,11 @@ fetch("http://localhost:3000/api/products/" + selectId)
 document.getElementById("addToCart").addEventListener("click", (addItem) => {
   
   let selectColor = document.getElementById("colors").value;
-  let selectQuantity = document.getElementById("quantity").value;  
+  let selectQuantity = document.getElementById("quantity").value;
   let selectImageUrl = document.querySelector("#image img").getAttribute("src");
   let selectAltTxt = document.querySelector("#image img").getAttribute("alt");
   let selectName = document.getElementById("title").innerText;  
-
+  
   class Item {    
     constructor(selectId, selectColor, selectName, selectQuantity, selectImageUrl, selectAltTxt) {
       this.selectId = selectId;
@@ -100,10 +100,21 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
           localStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
         }        
     }
-    /*
-    document.querySelector(".cart__order__form__submit").addEventListener("submit", function (event) {
-      alert("Article(s) ajouté(s) au panier !");
-    });
-    */
+
+    if (selectQuantity == 1) {
+      let messageOneItem =
+        `
+          ${document.getElementById("quantity").value} ${document.getElementById("title").innerText} (${document.getElementById("colors").value}) ajouté au panier !
+        `
+      alert(messageOneItem);
+    }
+
+    if (selectQuantity > 1) {
+      let messageSeveralItems =
+        `
+          ${document.getElementById("quantity").value} ${document.getElementById("title").innerText} (${document.getElementById("colors").value}) ajoutés au panier !
+        `
+      alert(messageSeveralItems);
+    }   
   }
 });
