@@ -1,7 +1,7 @@
 // Récupération des articles ajoutés au panier
 let cart = JSON.parse(localStorage.getItem("cart")) || []; // || [] : évite le message "Uncaught (in promise) TypeError: cart is not iterable at initialization"
 
-function emptyCart() {
+const emptyCart = () => {
     document.getElementById("cart__items").insertAdjacentHTML("beforeend",
         `
             <div class="cart__empty" style:"color: #B6D7A8">
@@ -22,19 +22,34 @@ function emptyCart() {
     document.querySelector(".cart__order").style.display = "none";
 }
 
+let totalQuantity = 0;
+const computeTotalQuantity = () => {
+    for (let item of cart) {
+        totalQuantity += parseInt(item.selectQuantity);
+    }
+}
+
+// Affichage du prix total du panier
+const displayTotalQuantity = () => {
+    document.getElementById("totalQuantity").textContent = totalQuantity;
+}
+
+let totalCartPrice = 0;
+const displayTotalCartPrice = () => {
+    document.getElementById("totalPrice").textContent = totalCartPrice;
+}
+
+let displayItems = "";
+
 if (cart == null || cart.length == 0) {
     alert("Votre panier est vide.\nMerci de retourner à l'accueil pour choisir vos articles !");
     emptyCart();
 }
 
 const initialization = async () => {
-    let displayItems = "";
-    let totalCartPrice = 0;
-    let totalQuantity = 0;    
-
     for (let item of cart) {
         let apiResponse = await fetch("http://localhost:3000/api/products/" + item.selectId);
-        let product = await apiResponse.json();        
+        let product = await apiResponse.json();
 
         displayItems +=
             `
@@ -61,30 +76,19 @@ const initialization = async () => {
                 </article>                        
             `
 
-        totalQuantity += parseInt(item.selectQuantity);
-        
-        const computeTotalCartPrice = () => {
+        // Calcul et affichage du prix total du panier à l'arrivée sur la page
+        const computeTotalCartPrice = () => {    
             totalCartPrice += parseInt(item.selectQuantity) * product.price;
         }
-        computeTotalCartPrice()
-
-        // Affichage du prix total du panier
-        const displayTotalCartPrice = () => {
-            document.getElementById("totalPrice").textContent = totalCartPrice;
-        }        
-
-        // Modification du prix total du panier en fonction de la modification de la quantité des articles
-        Array.from(document.getElementsByClassName("itemQuantity")).forEach(node => node.addEventListener("input", updateTotal => {
-                        
-        }));
-        
-        // Calcul et affichage du prix total du panier à l'arrivée sur la page
+        computeTotalCartPrice();
         displayTotalCartPrice();
     }    
-    document.getElementById("cart__items").insertAdjacentHTML("beforeend", displayItems);
+    document.getElementById("cart__items").insertAdjacentHTML("beforeend", displayItems);   
 
+    // Calcul et affichage de la quantité totale d'articles à l'arrivée sur la page
+    computeTotalQuantity();
+    displayTotalQuantity();
     // Modification du nombre d'articles
-    document.getElementById("totalQuantity").textContent = totalQuantity;
     const updateQuantity = () => {
         Array.from(document.getElementsByClassName("itemQuantity")).forEach(node => node.addEventListener("input", changeQuantity => {
             let itemQuantity = node.closest(".itemQuantity").value;
@@ -102,28 +106,45 @@ const initialization = async () => {
                 match.selectQuantity = itemQuantity // Remplacement
                 localStorage.setItem("cart", JSON.stringify(cart));
                 
-                totalQuantity = 0;
-                for (let item of cart) {
-                    totalQuantity += parseInt(item.selectQuantity);
+                totalQuantity = 0;                
+                computeTotalQuantity();
+                displayTotalQuantity();
+                
+                totalCartPrice = 0;
+                const updateTotalCartPrice = async () => {
+                    for (let item of cart) {
+                        let apiResponse = await fetch("http://localhost:3000/api/products/" + item.selectId);
+                        let product = await apiResponse.json();                        
+                        const computeTotalCartPrice = () => {    
+                            totalCartPrice += parseInt(item.selectQuantity) * product.price;
+                        }
+                        computeTotalCartPrice();
+                        displayTotalCartPrice();
+                    }
                 }
-
-                document.getElementById("totalQuantity").textContent = totalQuantity;            
-
+                updateTotalCartPrice()
+                displayTotalCartPrice();
+                
                 // Suppression d'un article avec les touches "delete", "backspace" ou 0
                 if (itemQuantity == 0) {
                     cart.splice(cart.indexOf(match), 1); // Suppression
                     localStorage.setItem("cart", JSON.stringify(cart)); // Enregistrement
                     node.closest(".cart__item").remove();
+
+                    totalQuantity = 0;                
+                    computeTotalQuantity();
+                    displayTotalQuantity();
                     
                     if (cart == null || cart == 0) {                          
                         localStorage.removeItem("cart");
                         emptyCart()
                     }
-                }
+                }                
             }        
         }));
     }
     updateQuantity();
+    
     // Suppression d'un article avec le bouton "Supprimer"    
     Array.from(document.getElementsByClassName("deleteItem")).forEach(node => node.addEventListener("click", deleteItem => {
         let itemId = node.closest(".cart__item").dataset.id;
@@ -135,10 +156,26 @@ const initialization = async () => {
         node.closest(".cart__item").remove();
         
         totalQuantity = 0;
-        for (let item of cart) {                    
+        /* for (let item of cart) {                    
             totalQuantity += parseInt(item.selectQuantity);
+        } */
+        computeTotalQuantity();
+        displayTotalQuantity();
+        // document.getElementById("totalQuantity").textContent = totalQuantity;
+
+        totalCartPrice = 0;
+        const updateTotalCartPrice = async () => {
+            for (let item of cart) {
+                let apiResponse = await fetch("http://localhost:3000/api/products/" + item.selectId);
+                let product = await apiResponse.json();                        
+                const computeTotalCartPrice = () => {    
+                    totalCartPrice += parseInt(item.selectQuantity) * product.price;                        }
+                computeTotalCartPrice();
+                displayTotalCartPrice();
+            }
         }
-        document.getElementById("totalQuantity").textContent = totalQuantity;
+        updateTotalCartPrice()
+        displayTotalCartPrice();
 
         if (cart == null || cart == 0) {            
             localStorage.removeItem("cart");
