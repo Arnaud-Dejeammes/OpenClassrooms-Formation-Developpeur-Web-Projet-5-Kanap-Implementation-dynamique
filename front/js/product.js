@@ -118,7 +118,7 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
           if (parseInt(match.selectQuantity) + parseInt(item.selectQuantity) > 100) {
 
             if (parseInt(match.selectQuantity) == 100) {
-              alert("Votre panier contient le maximum de 100 articles.");              
+              alert("Votre panier contient déjà le maximum de 100 articles pour ce canapé.");              
             }
 
             if (item.selectQuantity > 1 && parseInt(match.selectQuantity) < 100) {
