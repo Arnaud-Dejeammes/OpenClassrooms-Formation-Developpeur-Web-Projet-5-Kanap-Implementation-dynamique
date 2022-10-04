@@ -92,33 +92,71 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
       // Recherche d'un article similaire
       let match = cart.find(retrieve => retrieve.selectId == selectId && retrieve.selectColor == selectColor);
 
+      let messageOneItem =
+        `
+          ${document.getElementById("quantity").value} ${document.getElementById("title").innerText} (${document.getElementById("colors").value}) ajouté au panier !
+        `
+      let messageSeveralItems =
+        `
+          ${document.getElementById("quantity").value} ${document.getElementById("title").innerText} (${document.getElementById("colors").value}) ajoutés au panier !
+        `
+      let messageMaximumItems =
+        `
+          Votre panier contient déjà ${parseInt(match.selectQuantity)} exemplaires du 
+          \n${document.getElementById("title").innerText} (${document.getElementById("colors").value}).
+          \nVous pouvez encore en rajouter ${100 - parseInt(match.selectQuantity)}.
+        `
+      let messageMaximumItemsForOneItem =
+        `
+          Votre panier contient déjà ${parseInt(match.selectQuantity)} exemplaires du 
+          \n${document.getElementById("title").innerText} (${document.getElementById("colors").value}).
+          \nVous pouvez encore en rajouter ${100 - parseInt(match.selectQuantity)}.
+        `
+
         // Mise à jour de sa quantité (addition)
         if (match != null) {
-          match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity); // Calcul de la somme
-          localStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
+          if (parseInt(match.selectQuantity) + parseInt(item.selectQuantity) > 100) {
+
+            if (parseInt(match.selectQuantity) == 100) {
+              alert("Votre panier contient le maximum de 100 articles.");              
+            }
+
+            if (item.selectQuantity > 1 && parseInt(match.selectQuantity) < 100) {
+              alert(messageMaximumItems);              
+            }
+
+            if (item.selectQuantity == 1 && parseInt(match.selectQuantity) < 100) {
+              alert(messageMaximumItemsForOneItem);
+            }
+          }
+
+          else {
+            match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity); // Calcul de la somme
+            localStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
+
+            if (selectQuantity == 1) {              
+              alert(messageOneItem);
+            }
+            
+            if (selectQuantity > 1) {              
+              alert(messageSeveralItems);
+            }
+          }          
         }
 
         // Ajout d'un nouvel article
         else {
           cart.push(item); // Ajout
           localStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
+
+          if (selectQuantity == 1) {            
+            alert(messageOneItem);
+          }
+          
+          if (selectQuantity > 1) {            
+            alert(messageSeveralItems);
+          }
         }        
-    }
-
-    if (selectQuantity == 1) {
-      let messageOneItem =
-        `
-          ${document.getElementById("quantity").value} ${document.getElementById("title").innerText} (${document.getElementById("colors").value}) ajouté au panier !
-        `
-      alert(messageOneItem);
-    }
-
-    if (selectQuantity > 1) {
-      let messageSeveralItems =
-        `
-          ${document.getElementById("quantity").value} ${document.getElementById("title").innerText} (${document.getElementById("colors").value}) ajoutés au panier !
-        `
-      alert(messageSeveralItems);
-    }   
+    }    
   }
 });
