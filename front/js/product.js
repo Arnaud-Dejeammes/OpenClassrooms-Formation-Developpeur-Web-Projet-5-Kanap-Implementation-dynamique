@@ -59,104 +59,96 @@ document.getElementById("addToCart").addEventListener("click", (addItem) => {
 
   if (selectColor == "" && selectQuantity < 1) {
     (alert("Merci de bien vouloir choisir une couleur et une quantité !"));
-  }
+  } else if (selectColor == "") {
+      (alert("Merci de bien vouloir choisir une couleur !"));    
+    } else if (selectQuantity <= 0) {
+        (alert("Merci de bien vouloir choisir une quantité !"));
+      } else if (selectQuantity > 100) {
+          (alert("Merci de bien vouloir choisir une quantité inférieure à 100 articles !"));
+        } else {
+            // Enregistrement des modifications du panier dans localStorage
+            cart = JSON.parse(localStorage.getItem("cart"));
 
-  else if (selectColor == "") {
-    (alert("Merci de bien vouloir choisir une couleur !"));    
-  }
+            let messageOneItem =
+                `
+                  ${document.getElementById("quantity").value} ${document.getElementById("title").innerText} (${document.getElementById("colors").value}) ajouté au panier !
+                `
+            let messageSeveralItems =
+              `
+                ${document.getElementById("quantity").value} ${document.getElementById("title").innerText} (${document.getElementById("colors").value}) ajoutés au panier !
+              `
 
-  else if (selectQuantity <= 0) {
-    (alert("Merci de bien vouloir choisir une quantité !"));
-  }
+            // Création du panier et ajout du premier article
+            if (cart === null) {
+              let cart = [];
+              cart.push(item);
+              localStorage.setItem("cart", JSON.stringify(cart));
 
-  else if (selectQuantity > 100) {
-    (alert("Merci de bien vouloir choisir une quantité inférieure à 100 articles !"));
-  } 
-
-  else {
-    // Enregistrement des modifications du panier dans localStorage
-    // Mise à jour
-    // Récupération du panier
-    cart = JSON.parse(localStorage.getItem("cart"));
-    
-    // Création du panier et ajout du premier article
-    if (cart === null) {
-      let cart = [];
-      cart.push(item); // Ajout
-      localStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde      
-    }
-
-    // Vérification de l'existence éventuelle d'un même article (selectId et selectColor identiques), modification de sa quantité ou ajout d'un article différent
-    if (cart) {        
-      // Modification
-      // Recherche d'un article similaire
-      let match = cart.find(retrieve => retrieve.selectId == selectId && retrieve.selectColor == selectColor);
-
-      let messageOneItem =
-        `
-          ${document.getElementById("quantity").value} ${document.getElementById("title").innerText} (${document.getElementById("colors").value}) ajouté au panier !
-        `
-      let messageSeveralItems =
-        `
-          ${document.getElementById("quantity").value} ${document.getElementById("title").innerText} (${document.getElementById("colors").value}) ajoutés au panier !
-        `
-      let messageMaximumItems =
-        `
-          Votre panier contient déjà ${parseInt(match.selectQuantity)} exemplaires du 
-          \n${document.getElementById("title").innerText} (${document.getElementById("colors").value}).
-          \nVous pouvez encore en rajouter ${100 - parseInt(match.selectQuantity)}.
-        `
-      let messageMaximumItemsForOneItem =
-        `
-          Votre panier contient déjà ${parseInt(match.selectQuantity)} exemplaires du 
-          \n${document.getElementById("title").innerText} (${document.getElementById("colors").value}).
-          \nVous pouvez encore en rajouter ${100 - parseInt(match.selectQuantity)}.
-        `
-
-        // Mise à jour de sa quantité (addition)
-        if (match != null) {
-          if (parseInt(match.selectQuantity) + parseInt(item.selectQuantity) > 100) {
-
-            if (parseInt(match.selectQuantity) == 100) {
-              alert("Votre panier contient déjà le maximum de 100 articles pour ce canapé.");              
+              if (selectQuantity == 1) {
+                alert(messageOneItem);
+              }
+              
+              if (selectQuantity > 1) {             
+                alert(messageSeveralItems);
+              }      
             }
 
-            if (item.selectQuantity > 1 && parseInt(match.selectQuantity) < 100) {
-              alert(messageMaximumItems);              
-            }
+            // Vérification de l'existence éventuelle d'un même article (selectId et selectColor identiques), modification de sa quantité ou ajout d'un article différent
+            if (cart) {
+              // Recherche d'un article similaire
+              let match = cart.find(retrieve => retrieve.selectId == selectId && retrieve.selectColor == selectColor);      
 
-            if (item.selectQuantity == 1 && parseInt(match.selectQuantity) < 100) {
-              alert(messageMaximumItemsForOneItem);
-            }
-          }
+              // Mise à jour de sa quantité
+              if (match != null) {
+                if (parseInt(match.selectQuantity) + parseInt(item.selectQuantity) > 100) {
 
-          else {
-            match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity); // Calcul de la somme
-            localStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
+                  if (parseInt(match.selectQuantity) == 100) {
+                    alert("Votre panier contient déjà le maximum de 100 articles pour ce canapé.");              
+                  }
+                  
+                  if (item.selectQuantity == 100 && parseInt(match.selectQuantity) == 1) {
+                    let messageMaximumItemsForOneItem =
+                      `
+                        Votre panier contient déjà ${parseInt(match.selectQuantity)} exemplaire du 
+                        \n${document.getElementById("title").innerText} (${document.getElementById("colors").value}).
+                        \nVous pouvez encore en rajouter ${100 - parseInt(match.selectQuantity)}.
+                      `
+                    alert(messageMaximumItemsForOneItem);
+                  }
 
-            if (selectQuantity == 1) {              
-              alert(messageOneItem);
+                  if (parseInt(match.selectQuantity) != 1 && parseInt(match.selectQuantity) < 100) {
+                    let messageMaximumItems =
+                      `
+                        Votre panier contient déjà ${parseInt(match.selectQuantity)} exemplaires du 
+                        \n${document.getElementById("title").innerText} (${document.getElementById("colors").value}).
+                        \nVous pouvez encore en rajouter ${100 - parseInt(match.selectQuantity)}.
+                      `
+                    alert(messageMaximumItems);
+                  }
+                } else {
+                    match.selectQuantity = parseInt(match.selectQuantity) + parseInt(item.selectQuantity); // Calcul de la somme
+                    localStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
+
+                    if (selectQuantity == 1) {
+                      alert(messageOneItem);
+                    }
+                    
+                    if (selectQuantity > 1) {             
+                      alert(messageSeveralItems);
+                    }
+                  }          
+              } else { // Ajout d'un nouvel article
+                  cart.push(item); // Ajout
+                  localStorage.setItem("cart", JSON.stringify(cart));
+
+                  if (selectQuantity == 1) {            
+                    alert(messageOneItem);
+                  }
+                
+                  if (selectQuantity > 1) {            
+                    alert(messageSeveralItems);
+                  }
+                }        
             }
-            
-            if (selectQuantity > 1) {              
-              alert(messageSeveralItems);
-            }
-          }          
         }
-
-        // Ajout d'un nouvel article
-        else {
-          cart.push(item); // Ajout
-          localStorage.setItem("cart", JSON.stringify(cart)); // Sauvegarde
-
-          if (selectQuantity == 1) {            
-            alert(messageOneItem);
-          }
-          
-          if (selectQuantity > 1) {            
-            alert(messageSeveralItems);
-          }
-        }        
-    }    
-  }
 });
