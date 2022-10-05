@@ -1,5 +1,5 @@
 // Récupération des articles ajoutés au panier
-let cart = JSON.parse(localStorage.getItem("cart")) || []; // || [] : évite le message "Uncaught (in promise) TypeError: cart is not iterable at initialization"
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 const emptyCart = () => {
     document.getElementById("cart__items").insertAdjacentHTML("beforeend",
@@ -22,18 +22,23 @@ const emptyCart = () => {
     document.querySelector(".cart__order").style.display = "none";
 }
 
+// Calcul de la quantité totale d'articles dans le panier
 let totalQuantity = 0;
 const computeTotalQuantity = () => {
     for (let item of cart) {
-        totalQuantity += parseInt(item.selectQuantity);
-    }
+        totalQuantity += (isNaN(parseInt(item.selectQuantity)) ? 0 : parseInt(item.selectQuantity));
+    }    
 }
 
-// Affichage du prix total du panier
-const displayTotalQuantity = () => {
+// Affichage de la quantité totale d'articles dans le panier
+const displayTotalQuantity = () => {    
+    if(isNaN(totalQuantity)){
+        totalQuantity = 0
+    }
     document.getElementById("totalQuantity").textContent = totalQuantity;
 }
 
+// Affichage du prix total du panier
 let totalCartPrice = 0;
 const displayTotalCartPrice = () => {
     document.getElementById("totalPrice").textContent = totalCartPrice;
@@ -76,10 +81,11 @@ const initialization = async () => {
                 </article>                        
             `
 
-        // Calcul et affichage du prix total du panier à l'arrivée sur la page
-        const computeTotalCartPrice = () => {    
-            totalCartPrice += parseInt(item.selectQuantity) * product.price;
+        // Calcul du prix total du panier
+        const computeTotalCartPrice = () => {
+            totalCartPrice += (!parseInt(item.selectQuantity) ? 0 : parseInt(item.selectQuantity)) * product.price;
         }
+        // Calcul et affichage du prix total du panier à l'arrivée sur la page
         computeTotalCartPrice();
         displayTotalCartPrice();
     }    
@@ -91,55 +97,53 @@ const initialization = async () => {
     // Modification du nombre d'articles
     const updateQuantity = () => {
         Array.from(document.getElementsByClassName("itemQuantity")).forEach(node => node.addEventListener("input", changeQuantity => {
+            // changeQuantity.preventDefault();
             let itemQuantity = node.closest(".itemQuantity").value;
 
             // Blocage des quantités tapées au clavier inférieures à 0 et supérieures à 100
             if (itemQuantity > 100 || itemQuantity <= -1) {
                 alert("Merci de bien vouloir choisir une quantité comprise entre 1 et 100 articles maximum !");            
-            }
-            
-            else {
+            } else {
                 // Modification de la quantité entre le DOM et le panier (cart du localStorage)
                 let itemId = node.closest(".cart__item").dataset.id;
                 let itemColor = node.closest(".cart__item").dataset.color;
                 let match = cart.find(retrieve => retrieve.selectId == itemId && retrieve.selectColor == itemColor);
-                match.selectQuantity = itemQuantity // Remplacement
+                match.selectQuantity = itemQuantity;                
                 localStorage.setItem("cart", JSON.stringify(cart));
                 
-                totalQuantity = 0;                
+                totalQuantity = 0;
                 computeTotalQuantity();
                 displayTotalQuantity();
-                
+
+                // Suppression d'un article avec les touches "delete", "backspace" ou 0
+                if (itemQuantity == 0) {
+                    cart.splice(cart.indexOf(match), 1);
+                    localStorage.setItem("cart", JSON.stringify(cart));
+                    node.closest(".cart__item").remove();
+
+                    totalQuantity = 0;                
+                    computeTotalQuantity();
+                    displayTotalQuantity();                    
+                    
+                    if (cart == null || cart == 0) {                          
+                        localStorage.removeItem("cart");
+                        emptyCart()
+                    }
+                }
+
                 totalCartPrice = 0;
                 const updateTotalCartPrice = async () => {
                     for (let item of cart) {
                         let apiResponse = await fetch("http://localhost:3000/api/products/" + item.selectId);
                         let product = await apiResponse.json();                        
                         const computeTotalCartPrice = () => {    
-                            totalCartPrice += parseInt(item.selectQuantity) * product.price;
+                            totalCartPrice += (!parseInt(item.selectQuantity) ? 0 : parseInt(item.selectQuantity)) * product.price;
                         }
                         computeTotalCartPrice();
                         displayTotalCartPrice();
                     }
-                }
-                updateTotalCartPrice()
-                displayTotalCartPrice();
-                
-                // Suppression d'un article avec les touches "delete", "backspace" ou 0
-                if (itemQuantity == 0) {
-                    cart.splice(cart.indexOf(match), 1); // Suppression
-                    localStorage.setItem("cart", JSON.stringify(cart)); // Enregistrement
-                    node.closest(".cart__item").remove();
-
-                    totalQuantity = 0;                
-                    computeTotalQuantity();
-                    displayTotalQuantity();
-                    
-                    if (cart == null || cart == 0) {                          
-                        localStorage.removeItem("cart");
-                        emptyCart()
-                    }
                 }                
+                updateTotalCartPrice();
             }        
         }));
     }
@@ -147,6 +151,8 @@ const initialization = async () => {
     
     // Suppression d'un article avec le bouton "Supprimer"    
     Array.from(document.getElementsByClassName("deleteItem")).forEach(node => node.addEventListener("click", deleteItem => {
+        // deleteItem.preventDefault();
+
         let itemId = node.closest(".cart__item").dataset.id;
         let itemColor = node.closest(".cart__item").dataset.color;            
         let match = cart.find(retrieve => retrieve.selectId == itemId && retrieve.selectColor == itemColor);
@@ -155,13 +161,9 @@ const initialization = async () => {
         localStorage.setItem("cart", JSON.stringify(cart));    
         node.closest(".cart__item").remove();
         
-        totalQuantity = 0;
-        /* for (let item of cart) {                    
-            totalQuantity += parseInt(item.selectQuantity);
-        } */
+        totalQuantity = 0;        
         computeTotalQuantity();
-        displayTotalQuantity();
-        // document.getElementById("totalQuantity").textContent = totalQuantity;
+        displayTotalQuantity();        
 
         totalCartPrice = 0;
         const updateTotalCartPrice = async () => {
@@ -169,13 +171,14 @@ const initialization = async () => {
                 let apiResponse = await fetch("http://localhost:3000/api/products/" + item.selectId);
                 let product = await apiResponse.json();                        
                 const computeTotalCartPrice = () => {    
-                    totalCartPrice += parseInt(item.selectQuantity) * product.price;                        }
+                    totalCartPrice += parseInt(item.selectQuantity) * product.price;
+                }
                 computeTotalCartPrice();
                 displayTotalCartPrice();
             }
         }
         updateTotalCartPrice()
-        displayTotalCartPrice();
+        // displayTotalCartPrice();
 
         if (cart == null || cart == 0) {            
             localStorage.removeItem("cart");
@@ -186,108 +189,74 @@ const initialization = async () => {
 
 window.addEventListener("load", initialization);
 
-// document.querySelector(".cart__order__form__submit").style.display = "none";
-// Validation du formulaire
-document.getElementById("firstName").addEventListener("input", validateFirstName => {
-    /* Regex pour firstName et lastName (clients avec des prénoms écrits avec les différents alphabets
-    européens et leurs caractères spéciaux, ainsi que les translitérations en alphabet latin) */
-    
-    let namePattern = new RegExp("^[A-Za-zÀ-žĄ-ę’'ʼ-]+$");
-    
-        if (namePattern.test(validateFirstName.target.value)) {
-            document.getElementById("firstName").style.backgroundColor = "#B6D7A8";
-            document.getElementById("firstNameErrorMsg").textContent = "";
-            return true;
-        }       
+document.getElementById("order").addEventListener("click", event => {
+    event.preventDefault(); // Désactivation du changement d'URL et du chargement d'une nouvelle page.
 
-        else {
-            document.getElementById("firstName").style.backgroundColor = "#FBBCBC";
-            document.getElementById("firstNameErrorMsg").textContent =
-            "Lettres, tiret, apostrophe seulement. Merci !";            
-            return false;
-        }      
-})
-
-document.getElementById("lastName").addEventListener("input", validateLastName => {
     /* Regex pour firstName et lastName (clients avec des noms écrits avec les différents alphabets
     européens et leurs caractères spéciaux, ainsi que les translitérations en alphabet latin) */
-    let namePattern = new RegExp("^[A-Za-zÀ-žĄ-ę’'ʼ-]+$"); // "^[^ ][A-Za-zÀ-žĄ-ę ’'ʼ-]+$"
-    
-    if (namePattern.test(validateLastName.target.value)) {
-        document.getElementById("lastName").style.backgroundColor = "#B6D7A8";
-        document.getElementById("lastNameErrorMsg").textContent = "";
-        return true;
-    }
-    else {
-        document.getElementById("lastName").style.backgroundColor = "#FBBCBC";
-        document.getElementById("lastNameErrorMsg").textContent =
-        "Lettres, tiret, apostrophe seulement. Merci !";        
-        return false;
-    }
-})
-
-document.getElementById("address").addEventListener("input", validateAddress => {
+    let namePattern = new RegExp("^[A-Za-zÀ-žĄ-ę’'ʼ-]+$");
     /* Regex pour address (livraison en France uniquement; virgule non
     prise en compte afin de se conformer aux nouvelles normes postales) */ 
     let addressPattern = new RegExp("^[0-9A-Za-zÀàÂâÄäÆæÇçÈèÉéÊêËëÎîÏïÔôŒœÙùÛûÜüŸÿ ’'ʼ-]+$");
-    
-    if (addressPattern.test(validateAddress.target.value.trim())) {
-        document.getElementById("address").style.backgroundColor = "#B6D7A8";
-        document.getElementById("addressErrorMsg").textContent = "";
-        return true;
-    }
-    else {
-        document.getElementById("address").style.backgroundColor = "#FBBCBC";
-        document.getElementById("addressErrorMsg").textContent =
-        "Lettres, tiret, apostrophe seulement. Merci !\nLivraison en France.";        
-        return false;
-    }
-})
-
-document.getElementById("city").addEventListener("input", validateCity => {
     /* Regex pour city (localité; livraison en France uniquement; virgule non
     prise en compte afin de se conformer aux nouvelles normes postales) */
     let cityPattern = new RegExp("^[A-Za-zÀàÂâÄäÆæÇçÈèÉéÊêËëÎîÏïÔôŒœÙùÛûÜüŸÿ’'ʼ-]+$");
+    /* Regex pour email */
+    let emailPattern = new RegExp(/[a-zA-Z0-9-_.]+@[a-zA-Z0-9-_]+\.[a-zA-Z]{2,4}/);
+
+    // let valid = false;
     
-    if (cityPattern.test(validateCity.target.value)) {
-        document.getElementById("city").style.backgroundColor = "#B6D7A8";
-        document.getElementById("cityErrorMsg").textContent = "";
-        return true;
+    if (namePattern.test(document.getElementById("firstName").value)) {
+        valid = true;
+    } else {
+        document.getElementById("firstName").style.backgroundColor = "#FBBCBC";
+        document.getElementById("firstNameErrorMsg").textContent =
+        "Lettres, tiret, apostrophe seulement. Merci !";
+        return false;
     }
-    else {
+
+    if (namePattern.test(document.getElementById("lastName").value)) {
+        valid = true;
+    } else {
+        document.getElementById("lastName").style.backgroundColor = "#FBBCBC";
+        document.getElementById("lastNameErrorMsg").textContent =
+        "Lettres, tiret, apostrophe seulement. Merci !";            
+        return false;
+    }
+
+    if (addressPattern.test(document.getElementById("lastName").value)) {        
+        valid = true;
+    } else {
+        document.getElementById("address").style.backgroundColor = "#FBBCBC";
+        document.getElementById("addressErrorMsg").textContent =
+        "Lettres, tiret, apostrophe seulement. Merci !\nLivraison en France.";
+        return false;
+    }
+    
+    if (cityPattern.test(document.getElementById("city").value)) {
+        valid = true;
+    } else {
         document.getElementById("city").style.backgroundColor = "#FBBCBC";
         document.getElementById("cityErrorMsg").textContent =
         "Lettres, tiret, apostrophe seulement. Merci !\nLivraison en France.";        
         return false;
     }
-})
 
-document.getElementById("email").addEventListener("input", validateEmail => {
-    /* Regex pour email */
-    let emailPattern = new RegExp("^[a-zA-Z0-9-_.]+@[a-zA-Z0-9-_]+.[a-z]{0,63}$");    
-
-    if (emailPattern.test(validateEmail.target.value)) {
-        document.getElementById("email").style.backgroundColor = "#B6D7A8";
-        document.getElementById("emailErrorMsg").textContent = "";
-        return true;
-    }
-    else {
+    if (emailPattern.test(document.getElementById("email").value)) {        
+        valid = true;
+    } else {
         document.getElementById("email").style.backgroundColor = "#FBBCBC";
         document.getElementById("emailErrorMsg").textContent =
-        "identifiant@fournisseur.domaine";        
+        "identifiant@fournisseur.domaine";
         return false;
     }
-})
 
-// document.querySelector(".cart__order__form__submit").style.display = "none";
-document.getElementById("firstName").addEventListener("input", function (event) {
-   
-})
-
-document.getElementById("order").addEventListener("click", function (event) {
-    event.preventDefault(); // Désactiver le changement d'URL et le chargement d'une nouvelle page.    
-
-    // Informations client pour l'envoi du formulaire (objet contact à partir des données du formulaire)
+    // Arrêt du script avec le formulaire en défaut
+    if (!valid) {
+        return false;
+    }   
+        
+    // Informations client pour l'envoi du formulaire (objet contact à partir des données du formulaire)    
     let contact = {
         firstName: document.getElementById("firstName").value,
         lastName: document.getElementById("lastName").value,
@@ -303,8 +272,7 @@ document.getElementById("order").addEventListener("click", function (event) {
     });    
 
     let customerCart = {contact, products};
-    let cuePayload = JSON.stringify(customerCart);
-    console.log(cuePayload);
+    let cuePayload = JSON.stringify(customerCart);    
 
     fetch("http://localhost:3000/api/products/order/", {
         method: "POST",
@@ -321,5 +289,5 @@ document.getElementById("order").addEventListener("click", function (event) {
         document.location.href = "confirmation.html?id=" + orderData.orderId;        
         localStorage.removeItem("cart");
     })   
-    .catch((error) => console.error(error))
+    .catch((error) => console.error(error))    
 });
